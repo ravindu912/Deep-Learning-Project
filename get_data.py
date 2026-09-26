@@ -49,28 +49,49 @@ LABEL_MAP = {
 
 
 def download_bulk(out_dir: str) -> pd.DataFrame:
-    """Route 1: download and unzip the full database."""
-    print(f"Downloading bulk file from {BULK_URL} ...")
-    resp = requests.get(BULK_URL, stream=True, timeout=120)
-    resp.raise_for_status()
+    """Route 1: download the full database and keep the rows we need.
 
-    buf = io.BytesIO()
-    downloaded = 0
-    for chunk in resp.iter_content(chunk_size=1 << 20):
-        buf.write(chunk)
-        downloaded += len(chunk)
-        print(f"\r  {downloaded / 1e6:.0f} MB", end="", flush=True)
-    print()
+    The zip is kept on disk so a re-run does not download it again.
+    """
+    zip_path = os.path.join(out_dir, "complaints.csv.zip")
 
-    with zipfile.ZipFile(buf) as zf:
+    if os.path.exists(zip_path) and os.path.getsize(zip_path) > 1e8:
+        print(f"Using the zip already at {zip_path} "
+              f"({os.path.getsize(zip_path)/1e6:.0f} MB)")
+    else:
+        print(f"Downloading {BULK_URL} ...")
+        resp = requests.get(BULK_URL, stream=True, timeout=300)
+        resp.raise_for_status()
+        downloaded = 0
+        with open(zip_path, "wb") as fh:
+            for chunk in resp.iter_content(chunk_size=1 << 20):
+                fh.write(chunk)
+                downloaded += len(chunk)
+                print(f"\r  {downloaded / 1e6:.0f} MB", end="", flush=True)
+        print()
+
+    with zipfile.ZipFile(zip_path) as zf:
         name = zf.namelist()[0]
-        print(f"Extracting {name} ...")
+        print(f"Reading {name} ...")
+        # Only 2 of the ~18 columns are needed, and there are millions of rows.
+        # Reading in chunks and dropping rows without a narrative keeps peak
+        # memory at a few hundred MB instead of many GB.
+        keep, total = [], 0
         with zf.open(name) as f:
-            df = pd.read_csv(f, low_memory=False)
+            for chunk in pd.read_csv(
+                f,
+                usecols=[NARRATIVE_COL, PRODUCT_COL],
+                chunksize=200_000,
+                low_memory=False,
+            ):
+                total += len(chunk)
+                keep.append(chunk.dropna(subset=[NARRATIVE_COL]))
+                print(f"\r  scanned {total:,} rows", end="", flush=True)
+        print()
 
-    raw_path = os.path.join(out_dir, "raw_complaints.csv")
-    df.to_csv(raw_path, index=False)
-    print(f"Saved full download to {raw_path}  ({len(df):,} rows)")
+    df = pd.concat(keep, ignore_index=True)
+    print(f"{total:,} complaints total, {len(df):,} with a narrative "
+          f"({len(df)/max(total,1):.1%})")
     return df
 
 
