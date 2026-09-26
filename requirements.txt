@@ -1,0 +1,21 @@
+# core
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.4
+scipy>=1.11
+
+# deep learning
+torch>=2.2
+transformers>=4.40
+datasets>=2.18
+accelerate>=0.29
+
+# plots and notebooks
+matplotlib>=3.8
+seaborn>=0.13
+jupyter>=1.0
+tqdm>=4.66
+
+# config and io
+pyyaml>=6.0
+requests>=2.31
