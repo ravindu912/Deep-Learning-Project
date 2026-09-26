@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "rows_in": 85846,
+  "rows_kept": 85672,
+  "n_classes": 5,
+  "classes": [
+    "credit_card",
+    "credit_reporting",
+    "debt_collection",
+    "mortgages_and_loans",
+    "retail_banking"
+  ],
+  "label2id": {
+    "credit_card": 0,
+    "credit_reporting": 1,
+    "debt_collection": 2,
+    "mortgages_and_loans": 3,
+    "retail_banking": 4
+  },
+  "sizes": {
+    "train": 59970,
+    "val": 12851,
+    "test": 12851
+  },
+  "min_words": 10,
+  "min_class": 1000
+}

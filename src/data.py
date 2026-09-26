@@ -108,14 +108,24 @@ def make_splits(
 
     df["label"] = df["label"].replace(LABEL_MAP)
 
-    # LEAKAGE GUARD: the same complaint sometimes appears more than once.
-    # Dedupe here, before the split, or a test complaint can also be in train.
-    # Dedupe on the RAW text: cleaning masks numbers and dates, which would
-    # make genuinely different complaints look identical and delete them.
+    # LEAKAGE GUARD, in two passes. The same complaint is sometimes submitted
+    # more than once, and a duplicate landing in two different splits means a
+    # model gets tested on something it trained on.
+    #
+    # Pass 1, on the RAW text: catches identical submissions.
+    n_raw = len(df)
     df = df.drop_duplicates(subset=["text"])
 
     df["text"] = df["text"].map(clean_text)
     df = df[df["text"].str.split().str.len() >= min_words]
+
+    # Pass 2, on the CLEANED text: cleaning masks numbers, dates and URLs, so
+    # two complaints differing only in those details become identical here.
+    # Without this pass 83 duplicates survived into separate splits.
+    n_before = len(df)
+    df = df.drop_duplicates(subset=["text"])
+    print(f"duplicates removed: {n_raw - n_before:,} raw, "
+          f"{n_before - len(df):,} after cleaning")
 
     counts = df["label"].value_counts()
     keep = counts[counts >= min_class].index

@@ -28,3 +28,7 @@ venv/
 !data/.gitkeep
 !results/.gitkeep
 .DS_Store
+
+# but DO commit the checksums and split metadata
+!data/CHECKSUMS.txt
+!data/split_meta.json
