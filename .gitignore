@@ -28,3 +28,6 @@ venv/
 !data/.gitkeep
 !results/.gitkeep
 .DS_Store
+
+# but DO commit the checksums so everyone can verify their copy
+!data/CHECKSUMS.txt
