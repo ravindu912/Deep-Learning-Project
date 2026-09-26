@@ -10,12 +10,23 @@ identical experimental conditions.
 
 CFPB Consumer Complaint Database — <https://www.consumerfinance.gov/data-research/consumer-complaints/>
 
-Downloaded: **<fill in the date>**. Raw data is not committed. Run the download script.
+The CFPB stopped publishing complaint narratives on 14 August 2026, so the live
+export no longer contains text. This project uses an archived pre-August-2026
+snapshot (CC0), obtained from Kaggle:
+<https://www.kaggle.com/datasets/shashwatwork/consume-complaints-dataset-fo-nlp>
+
+Split files for the group (do not re-split):
+https://drive.google.com/drive/folders/15HSUSIsoxDiv5TYDdNGu87w5lE_ikv-i?usp=sharing
+
+Raw data is not committed.
 
 | Column | Use |
 | --- | --- |
 | `Consumer complaint narrative` | input text |
-| `Product` | target label (~9 classes after merging renamed categories) |
+| `Product` | target label — 5 classes |
+
+Split: 59,970 train / 12,851 val / 12,851 test, stratified, seed 42, no overlap.
+`MAX_LEN` = 224 for all models.
 
 ## Models
 
