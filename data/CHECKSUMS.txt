@@ -1,0 +1,36 @@
+{
+  "files": {
+    "train.csv": {
+      "md5": "560bfcbbc9d77975aa7121308033faef",
+      "bytes": 42694888
+    },
+    "val.csv": {
+      "md5": "dc027814a5308ee6e5bd17e1ac5e2f51",
+      "bytes": 8903008
+    },
+    "test.csv": {
+      "md5": "45ea80d95676a63b0919ca90a42171ed",
+      "bytes": 9071970
+    },
+    "split_meta.json": {
+      "md5": "454ada9680af1913c09455fdfae2b5ba",
+      "bytes": 474
+    }
+  },
+  "split": {
+    "seed": 42,
+    "n_classes": 5,
+    "sizes": {
+      "train": 59970,
+      "val": 12851,
+      "test": 12851
+    },
+    "classes": [
+      "credit_card",
+      "credit_reporting",
+      "debt_collection",
+      "mortgages_and_loans",
+      "retail_banking"
+    ]
+  }
+}

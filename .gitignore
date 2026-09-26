@@ -19,7 +19,7 @@ wandb/
 # python
 __pycache__/
 *.py[cod]
-.venv/
+.venv*/
 venv/
 .ipynb_checkpoints/
 .DS_Store
@@ -29,5 +29,6 @@ venv/
 !results/.gitkeep
 .DS_Store
 
-# but DO commit the checksums so everyone can verify their copy
+# but DO commit the checksums and split metadata
 !data/CHECKSUMS.txt
+!data/split_meta.json

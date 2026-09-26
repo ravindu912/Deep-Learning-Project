@@ -49,7 +49,8 @@ updates daily, so if you download it on a different day you get different
 complaints, a different split, and results nobody can compare to.
 
 1. Download `train.csv`, `val.csv`, `test.csv` and `split_meta.json` from the
-   shared Drive folder (link in the group chat).
+   shared Drive folder:
+   https://drive.google.com/drive/folders/15HSUSIsoxDiv5TYDdNGu87w5lE_ikv-i?usp=sharing
 2. Put all four into the `data/` folder of your clone.
 3. Verify you have the right files:
 
@@ -59,6 +60,9 @@ python scripts/check_data.py
 
 It must print `All files match`. If it does not, re-copy the files. Do not
 train until it passes.
+
+The split is **59,970 train / 12,851 val / 12,851 test**, 5 classes, seed 42,
+with zero overlap between any two splits.
 
 The CSVs are gitignored on purpose — they are too large for GitHub.
 
@@ -113,7 +117,7 @@ are not comparable.
 
 | Setting | Value |
 | --- | --- |
-| `MAX_LEN` | see `#general` — it is the p90 from the EDA |
+| `MAX_LEN` | **224** (p90 of the training set is 194) |
 | Seeds | 42, then 1 and 2 for the repeat runs |
 | Loss | class-weighted cross-entropy |
 | Optimiser | AdamW |
