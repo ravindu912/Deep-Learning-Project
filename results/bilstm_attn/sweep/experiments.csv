@@ -1,0 +1,7 @@
+name,status,learning_rate,dropout,hidden_size,batch_size,seed,max_epochs,validation_macro_f1,best_epoch,result_dir,error
+01_baseline,completed,0.001,0.3,128,64,42,20,0.850772353565216,4,D:\Y4S1\DL\Assingment\Deep-Learning-Project\results\bilstm_attn\validation\20260927T074249457028Z_seed42,
+02_lower_lr,completed,0.0003,0.3,128,64,42,20,0.8475751184975115,6,D:\Y4S1\DL\Assingment\Deep-Learning-Project\results\bilstm_attn\validation\20260927T164404269222Z_seed42,
+03_higher_lr,completed,0.003,0.3,128,64,42,20,0.8516188081179902,4,D:\Y4S1\DL\Assingment\Deep-Learning-Project\results\bilstm_attn\validation\20260927T165714263081Z_seed42,
+04_more_dropout,completed,0.001,0.5,128,64,42,20,0.8495798654029703,3,D:\Y4S1\DL\Assingment\Deep-Learning-Project\results\bilstm_attn\validation\20260927T170704312963Z_seed42,
+05_smaller_lstm,completed,0.001,0.3,64,64,42,20,0.8532751930285263,3,D:\Y4S1\DL\Assingment\Deep-Learning-Project\results\bilstm_attn\validation\20260927T171701242213Z_seed42,
+06_larger_batch,completed,0.001,0.3,128,128,42,20,0.8489297966055863,4,D:\Y4S1\DL\Assingment\Deep-Learning-Project\results\bilstm_attn\validation\20260927T172501750652Z_seed42,
