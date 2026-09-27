@@ -1,0 +1,4 @@
+,accuracy,accuracy,f1_macro,f1_macro,f1_weighted,f1_weighted,precision_macro,precision_macro,recall_macro,recall_macro,roc_auc,roc_auc,params_m,params_m,train_time_s,train_time_s
+,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std
+model,,,,,,,,,,,,,,,,
+bilstm_attn,0.8501,0.0029,0.851,0.0031,0.8498,0.0032,0.8495,0.0034,0.8534,0.0024,0.9729,0.0007,6.4955,0.0,549.2779,101.539
