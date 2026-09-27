@@ -18,8 +18,8 @@ data:
   # Shared splits only: data/train.csv, val.csv, test.csv
 
 training:
-  batch_size: 32        # drop to 16 if the GPU runs out of memory
-  lr: 2.0e-5            # standard for BERT-family fine-tuning; 5e-5 diverges
+  batch_size: 16        # tuned: 16 beat 32 by 0.0011 macro F1
+  lr: 5.0e-5            # tuned: peak of the 2e-5/3e-5/5e-5/8e-5 sweep
   epochs: 3             # pretrained models converge in 2-3; more overfits
   weight_decay: 0.01
   warmup_ratio: 0.1     # linear warmup then linear decay
@@ -40,14 +40,32 @@ seeds: [42, 1, 2]
 # |-----|-------|-------|---------|--------|--------------|-----------------|
 # | 1   | 2e-5  | 32    | 224     | 3      | 0.8629       | baseline; val loss flat after ep2 |
 # | 2   | 3e-5  | 32    | 224     | 3      | 0.8647       | best so far; val loss up at ep3 |
-# | 3   | 5e-5  | 32    | 224     | 3      |              |                 |
-# | 4   | 2e-5  | 16    | 224     | 3      |              |                 |
-# | 5   | 2e-5  | 32    | 128     | 3      |              | shorter context |
-# | 6   | 2e-5  | 32    | 320     | 3      |              | longer context  |
-# | 7   | 1e-5  | 32    | 224     | 4      |              | slower, longer  |
+# | 3   | 5e-5  | 32    | 224     | 3      | 0.8670       | best F1, steepest overfit |
+# | 4   | 8e-5  | 32    | 224     | 3      | 0.8648       | past the peak; worst val loss |
+# | 5   | 5e-5  | 32    | 224     | 2      | 0.8664       | -0.0006 F1 for 34% less compute |
+# | 6   | 5e-5  | 16    | 224     | 3      | 0.8681       | BEST; ep2 already 0.8681 |
+# | 7   | -     | -     | -       | -      | -            | not needed; peak located |
+#
+# Spread across all six runs: 0.8629-0.8681 (0.0052). Seeds 1 and 2 will
+# show whether this is larger than run-to-run variance.
+
+# --- seed runs (lr 5e-5, batch 16, max_len 224, 3 epochs) ------------------
+# | seed | val macro F1 |
+# |------|--------------|
+# | 42   | 0.8681       |
+# | 1    | 0.8677       |
+# | 2    | 0.8638       |
+#
+# mean 0.8665 +- 0.0024 (sd over 3 seeds)
+#
+# FINDING: seed-to-seed range is 0.0043, against a
+# hyperparameter sweep range of 0.0052. Run-to-run variance is therefore
+# 83% of the apparent tuning gain, so no configuration in
+# the searched range is reliably better than another. Report the mean and
+# sd, not the single best run.
 
 results:
-  best_val_f1: 0.8647   # run 2 (lr 3e-5), seed 42
+  best_val_f1: 0.8665   # mean over seeds 42/1/2, sd 0.0024
   test_f1_macro:
-  train_time_min: 19.0   # T4, mixed precision
+  train_time_min: 22.1   # T4, mixed precision
   params_millions: 66.4
