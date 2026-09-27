@@ -290,7 +290,13 @@ def train(args):
         "device": str(device),
     }
 
-    name = "distilbert" if args.test else "distilbert_val"
+    # The final test run is just "distilbert". Tuning runs carry their
+    # hyperparameters in the filename, so a sweep cannot overwrite itself.
+    if args.test:
+        name = "distilbert"
+    else:
+        name = (f"distilbert_val_lr{args.lr:g}_bs{args.batch_size}"
+                f"_len{args.max_len}_ep{args.epochs}")
     save_results(name, res, history=history, config=config, seed=args.seed)
 
     print(f"\naccuracy {res['accuracy']:.4f} | macro F1 {res['f1_macro']:.4f} | "

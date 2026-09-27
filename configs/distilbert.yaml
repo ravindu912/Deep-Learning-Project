@@ -39,7 +39,7 @@ seeds: [42, 1, 2]
 # | run | lr    | batch | max_len | epochs | val macro F1 | note            |
 # |-----|-------|-------|---------|--------|--------------|-----------------|
 # | 1   | 2e-5  | 32    | 224     | 3      | 0.8629       | baseline; val loss flat after ep2 |
-# | 2   | 3e-5  | 32    | 224     | 3      |              |                 |
+# | 2   | 3e-5  | 32    | 224     | 3      | 0.8647       | best so far; val loss up at ep3 |
 # | 3   | 5e-5  | 32    | 224     | 3      |              |                 |
 # | 4   | 2e-5  | 16    | 224     | 3      |              |                 |
 # | 5   | 2e-5  | 32    | 128     | 3      |              | shorter context |
@@ -47,7 +47,7 @@ seeds: [42, 1, 2]
 # | 7   | 1e-5  | 32    | 224     | 4      |              | slower, longer  |
 
 results:
-  best_val_f1: 0.8629   # run 1, seed 42
+  best_val_f1: 0.8647   # run 2 (lr 3e-5), seed 42
   test_f1_macro:
   train_time_min: 19.0   # T4, mixed precision
   params_millions: 66.4
