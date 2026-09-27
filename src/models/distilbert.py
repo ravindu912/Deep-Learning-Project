@@ -173,7 +173,11 @@ def train(args):
     )
 
     use_amp = device.type == "cuda" and not args.no_amp
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    # torch.amp.GradScaler on new versions, torch.cuda.amp on older ones.
+    try:
+        scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    except (AttributeError, TypeError):
+        scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
     if use_amp:
         print("mixed precision: on")
 
