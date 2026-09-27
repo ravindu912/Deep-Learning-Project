@@ -1,0 +1,40 @@
+{
+  "seed": 2,
+  "device": "cuda (Tesla T4)",
+  "batch_size": 64,
+  "n_examples_timed": 1000,
+  "inference_ms_per_1k": 814.6,
+  "inference_ms_per_1k_fp32": {
+    "median": 814.6,
+    "min": 802.2,
+    "max": 823.0,
+    "runs": [
+      802.2,
+      808.2,
+      814.6,
+      816.7,
+      823.0
+    ]
+  },
+  "inference_ms_per_1k_fp16": {
+    "median": 365.1,
+    "min": 363.7,
+    "max": 365.8,
+    "runs": [
+      363.7,
+      365.8,
+      365.1,
+      364.5,
+      365.2
+    ]
+  },
+  "peak_gpu_mb_inference": 379.3,
+  "reload_check": {
+    "val_rows": 12851,
+    "val_f1_macro_now": 0.8596,
+    "val_f1_macro_at_training": 0.8596,
+    "abs_diff": 5e-05,
+    "passed": true
+  },
+  "timing_note": "shared src.evaluate.time_inference; median of repeats; includes host-to-device copy and softmax; ids pre-encoded"
+}
