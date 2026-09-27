@@ -1,0 +1,15 @@
+model: textcnn
+max_len: 224
+embed_dim: 128
+filter_sizes:
+  - 3
+  - 4
+  - 5
+num_filters: 100
+dropout: 0.5
+batch_size: 64
+lr: 0.001
+weight_decay: 0.01
+optimiser: AdamW
+loss: class_weighted_cross_entropy
+early_stopping_patience: 3
