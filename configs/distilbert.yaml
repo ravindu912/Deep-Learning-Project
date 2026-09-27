@@ -1,0 +1,53 @@
+# DistilBERT — fine-tuning configuration
+# Owner: Dulanja. Model 4 of 4.
+#
+# Record the best configuration here after tuning on the VALIDATION set.
+# Every value below is a starting point, not a final answer.
+
+model:
+  name: distilbert-base-uncased
+  num_labels: 5
+  # 6 transformer layers, 12 attention heads, hidden size 768.
+  # ~66M parameters, of which ~66M are fine-tuned (no layers frozen).
+  # Classification head: [CLS] -> pre_classifier (768) -> ReLU -> dropout
+  # -> classifier (5).
+
+data:
+  max_len: 224          # p90 of training-set length is 194 words
+  # DistilBERT's own WordPiece tokenizer is used, not our shared vocabulary.
+  # Shared splits only: data/train.csv, val.csv, test.csv
+
+training:
+  batch_size: 32        # drop to 16 if the GPU runs out of memory
+  lr: 2.0e-5            # standard for BERT-family fine-tuning; 5e-5 diverges
+  epochs: 3             # pretrained models converge in 2-3; more overfits
+  weight_decay: 0.01
+  warmup_ratio: 0.1     # linear warmup then linear decay
+  max_grad_norm: 1.0
+  optimiser: AdamW
+  loss: class-weighted cross-entropy
+  early_stopping:
+    monitor: val_f1_macro
+    patience: 2
+  mixed_precision: true # CUDA only; ignored on MPS and CPU
+
+seeds: [42, 1, 2]
+
+# --- tuning log -----------------------------------------------------------
+# Fill this in as you go. The rubric wants evidence of a real search.
+#
+# | run | lr    | batch | max_len | epochs | val macro F1 | note            |
+# |-----|-------|-------|---------|--------|--------------|-----------------|
+# | 1   | 2e-5  | 32    | 224     | 3      |              | baseline        |
+# | 2   | 3e-5  | 32    | 224     | 3      |              |                 |
+# | 3   | 5e-5  | 32    | 224     | 3      |              |                 |
+# | 4   | 2e-5  | 16    | 224     | 3      |              |                 |
+# | 5   | 2e-5  | 32    | 128     | 3      |              | shorter context |
+# | 6   | 2e-5  | 32    | 320     | 3      |              | longer context  |
+# | 7   | 1e-5  | 32    | 224     | 4      |              | slower, longer  |
+
+results:
+  best_val_f1:
+  test_f1_macro:
+  train_time_min:
+  params_millions: 66.4
