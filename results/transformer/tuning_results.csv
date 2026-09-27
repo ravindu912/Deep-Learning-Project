@@ -1,0 +1,9 @@
+run,varied,lr,dropout,batch_size,weight_decay,status,best_val_f1_macro,val_accuracy,val_precision_macro,val_recall_macro,best_epoch,epochs_run,stopped_early,train_time_min,mean_epoch_time_s,device,output_dir
+1,baseline,0.0001,0.1,32,0.0001,done,0.8598,0.858,0.8599,0.86,7,10,True,16.8,100.7,cuda (Tesla T4),results/transformer/seed_42
+2,lr,5e-05,0.1,32,0.0001,done,0.8611,0.8595,0.8595,0.8634,10,10,False,16.8,100.4,cuda (Tesla T4),results/transformer/tuning/run2_lr5e-05_do0.1_bs32_wd0.0001/seed_42
+3,lr,0.0002,0.1,32,0.0001,done,0.8604,0.859,0.86,0.8615,3,6,True,10.0,100.2,cuda (Tesla T4),results/transformer/tuning/run3_lr0.0002_do0.1_bs32_wd0.0001/seed_42
+4,dropout,0.0001,0.2,32,0.0001,done,0.8607,0.859,0.86,0.862,7,10,True,16.7,100.3,cuda (Tesla T4),results/transformer/tuning/run4_lr0.0001_do0.2_bs32_wd0.0001/seed_42
+5,dropout,0.0001,0.3,32,0.0001,done,0.8609,0.8594,0.8593,0.8636,10,10,False,16.7,100.3,cuda (Tesla T4),results/transformer/tuning/run5_lr0.0001_do0.3_bs32_wd0.0001/seed_42
+6,batch_size,0.0001,0.1,16,0.0001,done,0.8582,0.8572,0.8557,0.8622,6,9,True,19.8,132.1,cuda (Tesla T4),results/transformer/tuning/run6_lr0.0001_do0.1_bs16_wd0.0001/seed_42
+7,batch_size,0.0001,0.1,64,0.0001,done,0.8595,0.8578,0.8581,0.8616,10,10,False,15.3,91.5,cuda (Tesla T4),results/transformer/tuning/run7_lr0.0001_do0.1_bs64_wd0.0001/seed_42
+8,weight_decay,0.0001,0.1,32,0.001,done,0.8599,0.8581,0.86,0.8602,7,10,True,17.0,101.7,cuda (Tesla T4),results/transformer/tuning/run8_lr0.0001_do0.1_bs32_wd0.001/seed_42

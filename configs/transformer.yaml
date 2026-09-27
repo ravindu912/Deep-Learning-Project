@@ -1,0 +1,77 @@
+# Transformer encoder (from scratch) — training configuration
+# Owner: Member 4. Code: src/models/transformer.py
+#
+# BEST configuration, chosen on the VALIDATION set (tuning log below).
+# Architecture fixed by the Member 4 spec; only training settings were tuned.
+
+model:
+  vocab_size: 30000      # upper bound passed to build_vocab(max_size=...); the
+                         # real size is set by the training data (min_freq 2):
+                         # 20,666 words from 35,953 unique on the shared split
+  max_length: 256        # Member 4 spec. NOTE: TEAM_GUIDE sets 224 for all
+                         # models; p90 of training length is 194 words
+  d_model: 256
+  n_heads: 4             # d_k = d_model / n_heads = 64
+  num_layers: 4
+  dim_feedforward: 1024
+  dropout: 0.1           # embeddings, residuals, feed-forward, head
+  attn_dropout: 0.1      # on the attention weights
+  activation: gelu
+  norm_first: true       # pre-LN blocks; stable from random init
+  positional_encoding: sinusoidal   # fixed, no parameters
+  pooling: masked_mean   # average over real tokens, <pad> excluded
+  num_classes: 5
+  # Built by hand: no nn.TransformerEncoder, nn.MultiheadAttention, Hugging
+  # Face classes or pretrained weights. 8,451,333 parameters at the real
+  # vocab of 20,666 (63% in the token embedding); 10.8M if vocab hit 30000.
+
+data:
+  data_dir: data         # what src.data.load_splits() reads
+  train_path: data/train.csv
+  val_path: data/val.csv
+  test_path: data/test.csv
+  # Shared pipeline only (src/data.py): text already cleaned, vocabulary from
+  # train only, encode() truncates/pads to max_length, <pad> = 0, <unk> = 1.
+  min_freq: 2            # build_vocab default
+
+training:
+  batch_size: 32
+  learning_rate: 0.00005 # tuned: run 2 (was 1e-4 in the baseline)
+  weight_decay: 0.0001
+  epochs: 10             # upper bound; early stopping (patience 3) may end sooner
+  seed: 42               # tuning seed; final runs use the seeds list below
+  optimiser: AdamW
+  loss: class-weighted cross-entropy   # src.data.class_weights, train labels
+  early_stopping:
+    monitor: val_f1_macro
+    patience: 3          # TEAM_GUIDE setting
+  mixed_precision: true  # CUDA only; ignored on CPU
+
+seeds: [42, 1, 2]        # final runs of the best configuration
+
+# --- tuning log -----------------------------------------------------------
+# Validation set only, seed 42. Architecture stays fixed at the spec above.
+#
+# Run with: python scripts/tune_transformer.py  (results/transformer/tuning_results.csv)
+#
+# | run | lr    | dropout | batch | weight decay | varied       | val macro F1 | best epoch |
+# |-----|-------|---------|-------|--------------|--------------|--------------|------------|
+# | 1   | 1e-4  | 0.1     | 32    | 1e-4         | baseline     | 0.8598       | 7          |
+# | 2   | 5e-5  | 0.1     | 32    | 1e-4         | lr           | 0.8611 best  | 10 (cap)   |
+# | 3   | 2e-4  | 0.1     | 32    | 1e-4         | lr           | 0.8604       | 3          |
+# | 4   | 1e-4  | 0.2     | 32    | 1e-4         | dropout      | 0.8607       | 7          |
+# | 5   | 1e-4  | 0.3     | 32    | 1e-4         | dropout      | 0.8609       | 10 (cap)   |
+# | 6   | 1e-4  | 0.1     | 16    | 1e-4         | batch size   | 0.8582       | 6          |
+# | 7   | 1e-4  | 0.1     | 64    | 1e-4         | batch size   | 0.8595       | 10 (cap)   |
+# | 8   | 1e-4  | 0.1     | 32    | 1e-3         | weight decay | 0.8599       | 7          |
+#
+# Tesla T4, mixed precision, ~100 s/epoch. All 8 runs lie within 0.003 F1,
+# likely inside seed-to-seed noise: the model is insensitive to these
+# settings. Baseline val loss bottoms at epoch 3 (0.431) and rises to 0.537
+# by epoch 10 while train loss keeps falling: mild overfitting, F1 plateaus.
+
+results:
+  best_val_f1: 0.8611    # run 2 (lr 5e-5), seed 42, epoch 10
+  test_f1_macro:
+  train_time_min: 16.8   # Tesla T4, mixed precision
+  params_millions: 8.45
