@@ -197,6 +197,22 @@ def load_all(out_dir: str = "results", include_intermediate: bool = False) -> li
 # comparison outputs (run this at the end, once all models are done)
 # --------------------------------------------------------------------------
 
+def _params_millions(params):
+    """Parameter count in millions, tolerating either result format.
+
+    Most models store {"total": n, "trainable": n}; the TF-IDF baseline
+    stores a bare int. Both are valid records of what was run, so the
+    reader adapts rather than the result file being rewritten.
+    """
+    if isinstance(params, dict):
+        n = params.get("trainable") or params.get("total")
+    elif isinstance(params, (int, float)):
+        n = params
+    else:
+        return None
+    return n / 1e6 if n else None
+
+
 def comparison_table(out_dir: str = "results"):
     """Mean +- std across seeds, one row per model. Returns a DataFrame."""
     import pandas as pd
@@ -213,8 +229,7 @@ def comparison_table(out_dir: str = "results"):
             "precision_macro": r.get("precision_macro"),
             "recall_macro": r.get("recall_macro"),
             "roc_auc": r.get("roc_auc_ovr_macro"),
-            "params_m": (r.get("params", {}) or {}).get("trainable", 0) / 1e6
-                        if r.get("params") else None,
+            "params_m": _params_millions(r.get("params")),
             "train_time_s": r.get("train_time_s"),
             "inference_ms_per_1k": r.get("inference_ms_per_1k"),
         })
