@@ -1,0 +1,27 @@
+SE4050 - Deep Learning 2026
+Group Assignment - Member Details
+
+Group leader: Dulanja Rathnayake
+
+Name                    Student Number      Email
+---------------------------------------------------------------------------
+Dulanja Rathnayake      IT23227736          dula.tr14@gmail.com
+Ravindu Sehan           IT<FILL IN>         ravindusehanathapaththu@gmail.com
+<Oshada FULL NAME>      IT23292468          it23292468@my.sliit.lk
+<Tharindi FULL NAME>    IT<FILL IN>         <FILL IN>
+
+Contributions
+---------------------------------------------------------------------------
+Dulanja Rathnayake   Shared data pipeline (cleaning, stratified split,
+                     leakage prevention, checksums), shared evaluation
+                     module, DistilBERT model, integration of all models,
+                     final comparison. Report sections 3, 4, 7.
+
+Ravindu Sehan        TextCNN model, TF-IDF + Logistic Regression baseline,
+                     vocabulary and embeddings. Report section 2.
+
+<Oshada>             BiLSTM with attention model, attention visualisations,
+                     cross-model error analysis. Report sections 5, 8.
+
+<Tharindi>           Transformer encoder built from scratch, efficiency
+                     benchmarking, video production. Report sections 1, 9, 10.

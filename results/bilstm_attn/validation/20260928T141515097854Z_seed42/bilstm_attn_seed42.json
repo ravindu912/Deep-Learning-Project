@@ -1,0 +1,212 @@
+{
+  "model": "bilstm_attn",
+  "seed": 42,
+  "config": {
+    "seed": 42,
+    "data_dir": "/Users/dulanjasmac/Documents/Y4S1/DL/GroupAssignment/data",
+    "max_len": 224,
+    "vocab_max_size": 30000,
+    "vocab_min_freq": 2,
+    "embedding_dim": 300,
+    "glove_path": null,
+    "freeze_embeddings": false,
+    "hidden_size": 64,
+    "num_layers": 2,
+    "bidirectional": true,
+    "dropout": 0.3,
+    "batch_size": 64,
+    "max_epochs": 20,
+    "learning_rate": 0.001,
+    "weight_decay": 0.01,
+    "adam_betas": [
+      0.9,
+      0.999
+    ],
+    "adam_eps": 1e-08,
+    "gradient_clip_norm": 1.0,
+    "patience": 3,
+    "min_delta": 0.0,
+    "device": "mps",
+    "num_workers": 0,
+    "torch_num_threads": 4,
+    "deterministic": true,
+    "experiment_kind": "full_training",
+    "experiment_name": "05_smaller_lstm",
+    "config_source": "/Users/dulanjasmac/Documents/Y4S1/DL/GroupAssignment/configs/bilstm_attn.yaml",
+    "run_id": "20260928T141515097854Z_seed42",
+    "resolved_device": "mps",
+    "n_classes": 5,
+    "classes": [
+      "credit_card",
+      "credit_reporting",
+      "debt_collection",
+      "mortgages_and_loans",
+      "retail_banking"
+    ],
+    "vocab_size": 20666,
+    "padding_idx": 0,
+    "class_weights": [
+      1.1622092723846436,
+      0.8634989261627197,
+      0.8574492335319519,
+      0.9278255105018616,
+      1.3560203313827515
+    ],
+    "train_rows": 59970,
+    "val_rows": 12851,
+    "optimizer": "AdamW",
+    "amsgrad": false,
+    "foreach": false,
+    "fused": false,
+    "loss": "class_weighted_cross_entropy",
+    "loss_reduction": "mean",
+    "label_smoothing": 0.0,
+    "selection_metric": "val_f1_macro",
+    "shuffle_train": true,
+    "shuffle_val": false,
+    "drop_last": false,
+    "pin_memory": false,
+    "scheduler": null,
+    "mixed_precision": false,
+    "glove_initialization_seed": null,
+    "checkpoint_path": "/Users/dulanjasmac/Documents/Y4S1/DL/GroupAssignment/checkpoints/bilstm_attn/20260928T141515097854Z_seed42/best.pt",
+    "torch_version": "2.8.0",
+    "cuda_version": null,
+    "gpu_name": null,
+    "numpy_version": "2.0.2",
+    "python_version": "3.9.6 (default, Apr 17 2026, 18:15:52) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "cudnn_benchmark": false,
+    "cublas_workspace_config": ":4096:8"
+  },
+  "history": {
+    "train_loss": [
+      0.5683498467021537,
+      0.40563056384247825,
+      0.33467464735559727,
+      0.27565725286716636,
+      0.2169886497068166,
+      0.17143634665817303,
+      0.13413344235612948
+    ],
+    "val_loss": [
+      0.45702769825603107,
+      0.44011651423303116,
+      0.4410523170249705,
+      0.4572084502906995,
+      0.5046120194142705,
+      0.545178047920167,
+      0.6012050768947563
+    ],
+    "val_f1": [
+      0.8384259786247487,
+      0.8436580196146733,
+      0.8470450199844664,
+      0.8481603554749364,
+      0.8425383508679671,
+      0.842986406387032,
+      0.8393751981538633
+    ]
+  },
+  "split": "val",
+  "accuracy": 0.8475605011283168,
+  "precision_macro": 0.8472084280174437,
+  "recall_macro": 0.8500969598246575,
+  "f1_macro": 0.8481603554749364,
+  "f1_weighted": 0.8470649265861279,
+  "roc_auc_ovr_macro": 0.9727370245121814,
+  "per_class": {
+    "credit_card": {
+      "precision": 0.83356708742403,
+      "recall": 0.8064224332881049,
+      "f1-score": 0.8197701149425287,
+      "support": 2211.0
+    },
+    "credit_reporting": {
+      "precision": 0.8591448077614086,
+      "recall": 0.8031575411488076,
+      "f1-score": 0.8302083333333333,
+      "support": 2977.0
+    },
+    "debt_collection": {
+      "precision": 0.8366600133067199,
+      "recall": 0.8391725058391725,
+      "f1-score": 0.8379143761452607,
+      "support": 2997.0
+    },
+    "mortgages_and_loans": {
+      "precision": 0.8555746140651801,
+      "recall": 0.9003610108303249,
+      "f1-score": 0.8773966578715919,
+      "support": 2770.0
+    },
+    "retail_banking": {
+      "precision": 0.8510956175298805,
+      "recall": 0.9013713080168776,
+      "f1-score": 0.8755122950819673,
+      "support": 1896.0
+    },
+    "accuracy": 0.8475605011283168,
+    "macro avg": {
+      "precision": 0.8472084280174437,
+      "recall": 0.8500969598246575,
+      "f1-score": 0.8481603554749364,
+      "support": 12851.0
+    },
+    "weighted avg": {
+      "precision": 0.8475433783112353,
+      "recall": 0.8475605011283168,
+      "f1-score": 0.8470649265861279,
+      "support": 12851.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      1783,
+      81,
+      84,
+      76,
+      187
+    ],
+    [
+      108,
+      2391,
+      280,
+      177,
+      21
+    ],
+    [
+      94,
+      220,
+      2515,
+      129,
+      39
+    ],
+    [
+      35,
+      85,
+      104,
+      2494,
+      52
+    ],
+    [
+      119,
+      6,
+      23,
+      39,
+      1709
+    ]
+  ],
+  "classes": [
+    "credit_card",
+    "credit_reporting",
+    "debt_collection",
+    "mortgages_and_loans",
+    "retail_banking"
+  ],
+  "best_epoch": 4,
+  "params": {
+    "total": 6495485,
+    "trainable": 6495485
+  },
+  "train_time_s": 6374.709950208
+}

@@ -1,0 +1,63 @@
+SE4050 - Deep Learning 2026
+Group Assignment - Submission Details
+
+Group leader:        Dulanja Rathnayake (IT23227736)
+Submission date:     30 September 2026
+Category:            Supervised deep learning (four distinct architectures)
+
+GitHub repository:   https://github.com/ravindu912/Deep-Learning-Project
+YouTube video:       <FILL IN - 10 minute demonstration, unlisted>
+
+Problem
+---------------------------------------------------------------------------
+Multi-class text classification of consumer financial complaints. Given only
+the free-text complaint narrative, predict which financial product it
+concerns (5 classes).
+
+Dataset
+---------------------------------------------------------------------------
+CFPB Consumer Complaint Database, archived pre-August-2026 snapshot (CC0).
+Source: https://www.consumerfinance.gov/data-research/consumer-complaints/
+Snapshot obtained via Kaggle:
+https://www.kaggle.com/datasets/shashwatwork/consume-complaints-dataset-fo-nlp
+
+Note: the CFPB ceased publishing complaint narratives on 14 August 2026, so
+the current live export contains no text. An archived snapshot was therefore
+required.
+
+Split: 59,970 train / 12,851 validation / 12,851 test, stratified, seed 42.
+Verified zero overlap between all split pairs. MD5 checksums in
+data/CHECKSUMS.txt.
+
+Models implemented
+---------------------------------------------------------------------------
+1. TextCNN (Kim, 2014)                     2.8M parameters
+2. BiLSTM with attention                   6.5M parameters
+3. Transformer encoder, trained from scratch  8.5M parameters
+4. DistilBERT, fine-tuned                  67.0M parameters
+   Baseline (not counted): TF-IDF + Logistic Regression
+
+Final test results (macro F1)
+---------------------------------------------------------------------------
+DistilBERT                   0.8701
+TF-IDF + Logistic Regression 0.8597   (baseline)
+Transformer (from scratch)   0.8572
+BiLSTM + attention           0.8498
+TextCNN                      0.8438
+
+Contents of this submission
+---------------------------------------------------------------------------
+Members.txt          member names, student numbers, emails, contributions
+Report.pdf           full report, 10 sections
+Turnitin report      similarity report
+Submission.txt       this file
+
+Acknowledgements
+---------------------------------------------------------------------------
+Dataset: U.S. Consumer Financial Protection Bureau (public domain / CC0).
+Pretrained model: distilbert-base-uncased (Hugging Face).
+Libraries: PyTorch, Hugging Face Transformers, scikit-learn, pandas,
+matplotlib, NumPy.
+AI assistance: AI assistants (Claude) were used for code scaffolding,
+debugging and analysis support. All models, experiments, results and written
+analysis were produced and verified by the team.
