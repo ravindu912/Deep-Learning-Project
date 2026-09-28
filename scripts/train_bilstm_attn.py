@@ -35,11 +35,14 @@ def project_path(value: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
-def load_train_val(data_dir: Path):
+def load_train_val(data_dir: Path, include_test: bool = False):
     """Read unchanged shared files, without ever opening the reserved test split.
 
     Member 3 exception: src.data.load_splits always loads test.csv too.
     All vocabulary, encoding and class-weight logic still uses src.data.
+
+    include_test=True (--test) also reads test.csv with the IDENTICAL checks;
+    it is never used for training, selection or early stopping.
     """
     with (data_dir / "split_meta.json").open(encoding="utf-8") as handle:
         meta = json.load(handle)
@@ -47,7 +50,7 @@ def load_train_val(data_dir: Path):
         raise ValueError("Metadata class count does not match its class names")
     expected_ids = set(range(meta["n_classes"]))
     parts = []
-    for name in ("train", "val"):
+    for name in (("train", "val", "test") if include_test else ("train", "val")):
         frame = pd.read_csv(data_dir / f"{name}.csv")
         if not {"text", "y"}.issubset(frame.columns):
             raise ValueError(f"{name}.csv must contain text and y columns")
@@ -58,6 +61,8 @@ def load_train_val(data_dir: Path):
         if not pd.api.types.is_integer_dtype(frame.y) or set(frame.y.unique()) != expected_ids:
             raise ValueError(f"{name}.csv must contain integer labels for every metadata class")
         parts.append(frame)
+    if include_test:
+        return parts[0], parts[1], parts[2], meta
     return parts[0], parts[1], meta
 
 
@@ -144,8 +149,13 @@ def run_epoch(model, loader, criterion, device, gradient_clip_norm, optimizer=No
     return loss_sum / weight_sum, np.concatenate(labels), np.concatenate(probabilities)
 
 
-def train_model(train, val, meta: dict, cfg: dict, output_root: Path = ROOT) -> Path:
-    """Train on supplied shared splits; this function never loads split files."""
+def train_model(train, val, meta: dict, cfg: dict, output_root: Path = ROOT,
+                test=None) -> Path:
+    """Train on supplied shared splits; this function never loads split files.
+
+    test: only supplied by --test. Never trained on, never selected on; scored
+    ONCE after the best-val checkpoint is restored.
+    """
     cfg = dict(cfg)
     torch.set_num_threads(cfg.get("torch_num_threads", 4))
     cfg["torch_num_threads"] = torch.get_num_threads()
@@ -286,6 +296,37 @@ def train_model(train, val, meta: dict, cfg: dict, output_root: Path = ROOT) -> 
             break
     print(f"Best validation macro F1: {best_f1:.4f} at epoch {best_epoch}")
     print(f"Best checkpoint: {checkpoint_path}")
+    # ---- the one permitted test pass (--test only) ------------------------
+    # The in-memory model is the LAST epoch; best.pt holds the best-val epoch.
+    if test is not None:
+        print("\ntest pass: restoring best-val weights ...")
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        # encode with the vocabulary rebuilt from train (identical to the one
+        # stored alongside the weights: same train texts, same parameters)
+        inputs = encode(test.text, vocab, max_len=cfg["max_len"])
+        loader = DataLoader(
+            TensorDataset(
+                torch.from_numpy(inputs),
+                torch.as_tensor(test.y.to_numpy(copy=True), dtype=torch.long),
+            ),
+            batch_size=cfg["batch_size"], shuffle=False,
+            num_workers=cfg["num_workers"],
+        )
+        _, test_y, test_probs = run_epoch(model, loader, criterion, device,
+                                          cfg["gradient_clip_norm"])
+        test_res = evaluate_model(test_y, test_probs.argmax(axis=1), test_probs,
+                                  meta["classes"], split="test")
+        save_results(
+            "bilstm_attn_test",
+            {**test_res, "best_epoch": best_epoch,
+             "params": count_params(model),
+             "train_time_s": time.perf_counter() - started},
+            history=history, config=cfg, seed=cfg["seed"],
+            out_dir=str(result_dir),
+        )
+        print(f"TEST macro F1 {test_res['f1_macro']:.4f} | "
+              f"accuracy {test_res['accuracy']:.4f} | split=test")
     return result_dir
 
 
@@ -294,6 +335,8 @@ def main() -> None:
     parser.add_argument("--config", default="configs/bilstm_attn.yaml")
     parser.add_argument("--seed", type=int, help="Override the YAML seed; saved in the run settings")
     parser.add_argument("--trial", action="store_true", help="One short execution trial, excluded from tuning")
+    parser.add_argument("--test", action="store_true",
+                        help="FINAL RUN ONLY: one test pass after training, chosen config")
     args = parser.parse_args()
     config_path = project_path(args.config)
     cfg = read_config(config_path, args.seed)
@@ -303,8 +346,13 @@ def main() -> None:
     cfg["data_dir"] = str(project_path(cfg["data_dir"]).resolve())
     if cfg["glove_path"]:
         cfg["glove_path"] = str(project_path(cfg["glove_path"]).resolve())
-    train, val, meta = load_train_val(Path(cfg["data_dir"]))
-    train_model(train, val, meta, cfg)
+    loaded = load_train_val(Path(cfg["data_dir"]), include_test=args.test)
+    if args.test:
+        train, val, test, meta = loaded
+        train_model(train, val, meta, cfg, test=test)
+    else:
+        train, val, meta = loaded
+        train_model(train, val, meta, cfg)
 
 
 if __name__ == "__main__":
