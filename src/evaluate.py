@@ -128,14 +128,69 @@ def save_results(model_name: str, results: dict, history=None, config=None,
     return path
 
 
-def load_all(out_dir: str = "results") -> list:
-    """Load every saved result file."""
-    files = [f for f in os.listdir(out_dir) if f.endswith(".json")]
-    out = []
-    for f in sorted(files):
-        with open(os.path.join(out_dir, f)) as fh:
-            out.append(json.load(fh))
-    return out
+# Directories that hold intermediate runs, not final results. A tuning trial
+# is not a result: averaging them into a model's headline number would drag it
+# down and misrepresent the model.
+SKIP_DIRS = {"tuning", "sweep", "sweeps", "trials", "analysis", "checkpoints",
+             "figures", "runs", "wandb"}
+
+
+def load_all(out_dir: str = "results", include_intermediate: bool = False) -> list:
+    """Load every final result file, searching subdirectories.
+
+    Members store results differently — some as flat files, some as
+    results/<model>/final/seed_N/metrics.json — so this walks the tree.
+
+    Two things it protects against:
+      * tuning and sweep trials being counted as results (SKIP_DIRS)
+      * the same (model, seed, split) appearing twice, e.g. an early run at
+        results/transformer/seed_42/ and the final one at
+        results/transformer/final/seed_42/. A path under final/ wins;
+        otherwise the most recently modified file wins.
+    """
+    found = []
+    for root, dirs, files in os.walk(out_dir):
+        if not include_intermediate:
+            dirs[:] = [d for d in dirs if d.lower() not in SKIP_DIRS]
+        for name in sorted(files):
+            if not name.endswith(".json"):
+                continue
+            path = os.path.join(root, name)
+            try:
+                with open(path) as fh:
+                    data = json.load(fh)
+            except (json.JSONDecodeError, OSError):
+                continue
+            # Not every JSON under results/ is a result (configs, summaries,
+            # split metadata). A result has a macro F1.
+            if not isinstance(data, dict) or "f1_macro" not in data:
+                continue
+            data["_path"] = path
+            found.append(data)
+
+    # Deduplicate on (model, seed, split).
+    best: dict = {}
+    for d in found:
+        key = (d.get("model"), d.get("seed"), d.get("split"))
+        current = best.get(key)
+        if current is None:
+            best[key] = d
+            continue
+        is_final = "final" in d["_path"].replace(os.sep, "/").split("/")
+        was_final = "final" in current["_path"].replace(os.sep, "/").split("/")
+        if is_final and not was_final:
+            best[key] = d
+        elif is_final == was_final and \
+                os.path.getmtime(d["_path"]) > os.path.getmtime(current["_path"]):
+            best[key] = d
+
+    dropped = len(found) - len(best)
+    if dropped:
+        print(f"({dropped} duplicate result file(s) ignored — kept final/newest)")
+
+    return sorted(best.values(), key=lambda d: (str(d.get("split")),
+                                                str(d.get("model")),
+                                                str(d.get("seed"))))
 
 
 # --------------------------------------------------------------------------
@@ -149,6 +204,7 @@ def comparison_table(out_dir: str = "results"):
     rows = []
     for r in load_all(out_dir):
         rows.append({
+            "split": r.get("split"),
             "model": r["model"],
             "seed": r.get("seed"),
             "accuracy": r.get("accuracy"),
@@ -168,8 +224,21 @@ def comparison_table(out_dir: str = "results"):
         print("No result files found.")
         return df
 
+    # Group by split as well as model. Averaging a test score together with
+    # validation scores would be meaningless.
     num = df.select_dtypes("number").columns.drop("seed", errors="ignore")
-    agg = df.groupby("model")[list(num)].agg(["mean", "std"]).round(4)
+    agg = df.groupby(["split", "model"])[list(num)].agg(["mean", "std"]).round(4)
+
+    # Report how many runs each mean is built from — one seed is not a mean.
+    agg[("runs", "n")] = df.groupby(["split", "model"]).size()
+
+    missing = [c for c in ("inference_ms_per_1k", "params_m")
+               if c in df.columns and df[c].isna().any()]
+    if missing:
+        models = sorted(df.loc[df[missing[0]].isna(), "model"].unique())
+        print(f"note: {', '.join(missing)} missing for {', '.join(models)} — "
+              "measure all models on one machine before reporting efficiency")
+
     return agg
 
 
