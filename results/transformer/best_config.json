@@ -1,0 +1,13 @@
+{
+  "selected_on": "validation macro F1, seed 42",
+  "run": 2,
+  "hyperparameters": {
+    "lr": 5e-05,
+    "dropout": 0.1,
+    "batch_size": 32,
+    "weight_decay": 0.0001
+  },
+  "best_val_f1_macro": 0.8611,
+  "val_accuracy": 0.8595,
+  "output_dir": "results/transformer/tuning/run2_lr5e-05_do0.1_bs32_wd0.0001/seed_42"
+}

@@ -1,0 +1,114 @@
+{
+  "model": "transformer",
+  "seed": 42,
+  "selection": "best validation macro F1",
+  "best_epoch": 6,
+  "epochs_run": 9,
+  "epochs_max": 10,
+  "stopped_early": true,
+  "train_time_s": 1189.6,
+  "mean_epoch_time_s": 132.1,
+  "params": {
+    "total": 8451333,
+    "trainable": 8451333
+  },
+  "peak_gpu_mb": 534.5536,
+  "device": "cuda (Tesla T4)",
+  "smoke_test_limit": null,
+  "split": "val",
+  "accuracy": 0.8572095556766011,
+  "precision_macro": 0.8556508891342004,
+  "recall_macro": 0.8622234004554941,
+  "f1_macro": 0.8582489828763842,
+  "f1_weighted": 0.8568398936746635,
+  "roc_auc_ovr_macro": 0.9741142658822126,
+  "per_class": {
+    "credit_card": {
+      "precision": 0.8262411347517731,
+      "recall": 0.8430574400723655,
+      "f1-score": 0.8345645847324826,
+      "support": 2211.0
+    },
+    "credit_reporting": {
+      "precision": 0.8711321441572625,
+      "recall": 0.8038293584145113,
+      "f1-score": 0.8361285814116003,
+      "support": 2977.0
+    },
+    "debt_collection": {
+      "precision": 0.8491134158581466,
+      "recall": 0.8468468468468469,
+      "f1-score": 0.8479786167724691,
+      "support": 2997.0
+    },
+    "mortgages_and_loans": {
+      "precision": 0.8857245854361933,
+      "recall": 0.8870036101083032,
+      "f1-score": 0.8863636363636364,
+      "support": 2770.0
+    },
+    "retail_banking": {
+      "precision": 0.8460431654676259,
+      "recall": 0.930379746835443,
+      "f1-score": 0.8862094951017332,
+      "support": 1896.0
+    },
+    "accuracy": 0.8572095556766011,
+    "macro avg": {
+      "precision": 0.8556508891342004,
+      "recall": 0.8622234004554941,
+      "f1-score": 0.8582489828763842,
+      "support": 12851.0
+    },
+    "weighted avg": {
+      "precision": 0.8577174844606709,
+      "recall": 0.8572095556766011,
+      "f1-score": 0.8568398936746635,
+      "support": 12851.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      1864,
+      63,
+      54,
+      34,
+      196
+    ],
+    [
+      137,
+      2393,
+      277,
+      154,
+      16
+    ],
+    [
+      119,
+      187,
+      2538,
+      111,
+      42
+    ],
+    [
+      46,
+      98,
+      102,
+      2457,
+      67
+    ],
+    [
+      90,
+      6,
+      18,
+      18,
+      1764
+    ]
+  ],
+  "classes": [
+    "credit_card",
+    "credit_reporting",
+    "debt_collection",
+    "mortgages_and_loans",
+    "retail_banking"
+  ]
+}

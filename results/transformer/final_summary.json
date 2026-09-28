@@ -1,0 +1,135 @@
+{
+  "model": "transformer (from scratch)",
+  "split": "val",
+  "selected_config": {
+    "learning_rate": 5e-05,
+    "dropout": 0.1,
+    "batch_size": 32,
+    "weight_decay": 0.0001,
+    "max_length": 256,
+    "layers": 4,
+    "heads": 4,
+    "d_model": 256,
+    "d_ff": 1024
+  },
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "params_trainable": 8451333,
+  "device": "cuda (Tesla T4)",
+  "val_f1_macro": {
+    "mean": 0.86,
+    "std": 0.0009,
+    "min": 0.8593,
+    "max": 0.8611
+  },
+  "val_accuracy": {
+    "mean": 0.8587,
+    "std": 0.0008,
+    "min": 0.8581,
+    "max": 0.8595
+  },
+  "val_precision_macro": {
+    "mean": 0.8584,
+    "std": 0.001,
+    "min": 0.8575,
+    "max": 0.8595
+  },
+  "val_recall_macro": {
+    "mean": 0.8624,
+    "std": 0.0012,
+    "min": 0.8611,
+    "max": 0.8634
+  },
+  "val_roc_auc_ovr_macro": {
+    "mean": 0.9758,
+    "std": 0.0004,
+    "min": 0.9755,
+    "max": 0.9762
+  },
+  "best_epoch": {
+    "mean": 9.0,
+    "std": 1.0,
+    "min": 8.0,
+    "max": 10.0
+  },
+  "train_time_min": {
+    "mean": 16.7583,
+    "std": 0.0328,
+    "min": 16.7317,
+    "max": 16.795
+  },
+  "per_class_val_f1": {
+    "credit_card": {
+      "mean": 0.8348,
+      "std": 0.0017,
+      "min": 0.8329,
+      "max": 0.8362
+    },
+    "credit_reporting": {
+      "mean": 0.835,
+      "std": 0.0008,
+      "min": 0.8345,
+      "max": 0.8359
+    },
+    "debt_collection": {
+      "mean": 0.8479,
+      "std": 0.002,
+      "min": 0.846,
+      "max": 0.85
+    },
+    "mortgages_and_loans": {
+      "mean": 0.8898,
+      "std": 0.0017,
+      "min": 0.8886,
+      "max": 0.8918
+    },
+    "retail_banking": {
+      "mean": 0.8925,
+      "std": 0.0039,
+      "min": 0.8892,
+      "max": 0.8968
+    }
+  },
+  "per_seed": {
+    "42": {
+      "val_f1_macro": 0.8611,
+      "val_accuracy": 0.8595,
+      "val_precision_macro": 0.8595,
+      "val_recall_macro": 0.8634,
+      "val_roc_auc_ovr_macro": 0.9757,
+      "best_epoch": 10,
+      "epochs_run": 10,
+      "train_time_min": 16.7,
+      "min_val_loss_epoch": 6,
+      "final_train_minus_val_acc": 0.0422
+    },
+    "1": {
+      "val_f1_macro": 0.8593,
+      "val_accuracy": 0.8581,
+      "val_precision_macro": 0.8581,
+      "val_recall_macro": 0.8611,
+      "val_roc_auc_ovr_macro": 0.9755,
+      "best_epoch": 9,
+      "epochs_run": 10,
+      "train_time_min": 16.8,
+      "min_val_loss_epoch": 4,
+      "final_train_minus_val_acc": 0.0433
+    },
+    "2": {
+      "val_f1_macro": 0.8596,
+      "val_accuracy": 0.8585,
+      "val_precision_macro": 0.8575,
+      "val_recall_macro": 0.8625,
+      "val_roc_auc_ovr_macro": 0.9762,
+      "best_epoch": 8,
+      "epochs_run": 10,
+      "train_time_min": 16.7,
+      "min_val_loss_epoch": 4,
+      "final_train_minus_val_acc": 0.0427
+    }
+  },
+  "note": "Test set not used. Selection and all numbers here are validation only."
+}

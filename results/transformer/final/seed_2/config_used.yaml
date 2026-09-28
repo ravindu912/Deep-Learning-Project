@@ -1,0 +1,67 @@
+model:
+  vocab_size: 30000
+  max_length: 256
+  d_model: 256
+  n_heads: 4
+  num_layers: 4
+  dim_feedforward: 1024
+  dropout: 0.1
+  attn_dropout: 0.1
+  activation: gelu
+  norm_first: true
+  positional_encoding: sinusoidal
+  pooling: masked_mean
+  num_classes: 5
+data:
+  data_dir: data
+  train_path: data/train.csv
+  val_path: data/val.csv
+  test_path: data/test.csv
+  min_freq: 2
+training:
+  batch_size: 32
+  learning_rate: 5.0e-05
+  weight_decay: 0.0001
+  epochs: 10
+  seed: 2
+  optimiser: AdamW
+  loss: class-weighted cross-entropy
+  early_stopping:
+    monitor: val_f1_macro
+    patience: 3
+  mixed_precision: true
+  warmup_ratio: 0.1
+  scheduler: cosine
+  grad_clip: 1.0
+  label_smoothing: 0.0
+  class_weighted_loss: true
+  betas:
+  - 0.9
+  - 0.98
+  log_every: 100
+seeds:
+- 42
+- 1
+- 2
+results:
+  best_val_f1: null
+  test_f1_macro: null
+  train_time_min: null
+  params_millions: null
+run:
+  output_dir: results/transformer/final/seed_2
+  overrides:
+    learning_rate: 5.0e-05
+  smoke_test_limit: null
+  vocab_size_actual: 20666
+  params_trainable: 8451333
+  device: cuda (Tesla T4)
+  torch: 2.11.0+cu128
+  python: 3.13.15
+  git_commit: null
+  class_weights:
+  - 1.1622
+  - 0.8635
+  - 0.8574
+  - 0.9278
+  - 1.356
