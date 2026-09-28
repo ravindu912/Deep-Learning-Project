@@ -48,7 +48,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from src.data import class_weights                                   # noqa: E402
-from src.evaluate import count_params, evaluate_model, peak_gpu_mb   # noqa: E402
+from src.evaluate import count_params, evaluate_model, peak_gpu_mb, save_results  # noqa: E402
 from src.models.transformer import (                                 # noqa: E402
     TransformerClassifier,
     make_loader,
@@ -248,10 +248,14 @@ def train(args) -> dict:
         data_dir = os.path.join(ROOT, data_dir)
     if args.limit:
         print(f"*** SMOKE TEST: {args.limit} rows per split - numbers are meaningless ***")
+    # --test encodes the test split as well, but only to read it ONCE after
+    # training. Model selection and early stopping stay on train/val below.
+    splits = ("train", "val", "test") if args.test else ("train", "val")
     data = prepare_data(data_dir, max_len=max_len, max_vocab=int(m_cfg["vocab_size"]),
                         min_freq=int(d_cfg.get("min_freq", 2)),
-                        splits=("train", "val"), limit=args.limit)
-    assert "test" not in data["datasets"], "the test split must not be encoded here"
+                        splits=splits, limit=args.limit)
+    if not args.test:
+        assert "test" not in data["datasets"], "the test split must not be encoded here"
     vocab, meta = data["vocab"], data["meta"]
     n_classes = int(meta["n_classes"])
     if n_classes != int(m_cfg["num_classes"]):
@@ -264,6 +268,8 @@ def train(args) -> dict:
     bs = int(t_cfg["batch_size"])
     train_dl = make_loader(train_ds, bs, shuffle=True, seed=seed)
     val_dl = make_loader(val_ds, bs * 2, shuffle=False)
+    test_dl = (make_loader(data["datasets"]["test"], bs * 2, shuffle=False)
+               if args.test else None)
 
     # ---- model ------------------------------------------------------------
     model = TransformerClassifier(
@@ -447,6 +453,31 @@ def train(args) -> dict:
     with open(os.path.join(out_dir, "metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
 
+    # ---- the one permitted test pass (--test only) -------------------------
+    # best_model.pt holds the best-val epoch; the in-memory model is the LAST
+    # epoch, so restore before scoring. No tuning, no re-selection, once only.
+    if args.test:
+        print("\ntest pass: restoring best-val weights ...")
+        state = torch.load(ckpt_path, map_location=device, weights_only=False)
+        model.load_state_dict(state["model_state"])
+        _, test_probs, test_trues = run_eval(model, test_dl, loss_fn, device, use_amp)
+        test_res = evaluate_model(test_trues, test_probs.argmax(1), test_probs,
+                                  meta["classes"], split="test")
+        test_res.update(
+            best_epoch=best["epoch"], epochs_run=len(history["epochs"]),
+            train_time_s=round(total_time, 1), params=params,
+            peak_gpu_mb=peak_gpu_mb(), device=f"{device} ({dev_name})",
+            selection="best validation macro F1",
+            smoke_test_limit=args.limit or None)
+        save_results("transformer_test", test_res, history=history,
+                     config={"lr": t_cfg["learning_rate"], "dropout": m_cfg["dropout"],
+                             "batch_size": t_cfg["batch_size"],
+                             "weight_decay": t_cfg["weight_decay"],
+                             "max_len": max_len},
+                     seed=seed, out_dir=out_dir)
+        print(f"TEST macro F1 {test_res['f1_macro']:.4f} | "
+              f"accuracy {test_res['accuracy']:.4f} | split=test")
+
     print("\n" + "=" * 62)
     print(f"best validation macro F1 : {best['f1']:.4f}  (epoch {best['epoch']})")
     print(f"best validation accuracy : {best['metrics']['accuracy']:.4f}")
@@ -478,6 +509,8 @@ def main():
                     help="smoke test on N rows per split; never report these numbers")
     ap.add_argument("--overwrite", action="store_true",
                     help="replace a finished run in the same folder")
+    ap.add_argument("--test", action="store_true",
+                    help="FINAL RUN ONLY: one test pass after training, chosen config")
     train(ap.parse_args())
 
 
