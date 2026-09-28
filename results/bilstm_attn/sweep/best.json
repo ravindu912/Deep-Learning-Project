@@ -1,0 +1,17 @@
+{
+  "name": "05_smaller_lstm",
+  "status": "completed",
+  "config_sha256": "146511d6237f37dd3ba50cbd9a8a72f361dd4513937d25a9a5a2367182840aa6",
+  "learning_rate": 0.001,
+  "dropout": 0.3,
+  "hidden_size": 64,
+  "batch_size": 64,
+  "seed": 42,
+  "max_epochs": 20,
+  "validation_macro_f1": 0.8532751930285263,
+  "best_epoch": 3,
+  "result_dir": "D:\\Y4S1\\DL\\Assingment\\Deep-Learning-Project\\results\\bilstm_attn\\validation\\20260927T171701242213Z_seed42",
+  "error": null,
+  "selection_split": "val",
+  "completed_configurations": 6
+}

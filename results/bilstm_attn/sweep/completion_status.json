@@ -1,0 +1,10 @@
+{
+  "status": "complete",
+  "completed_configurations": 6,
+  "selected_configuration": "05_smaller_lstm",
+  "validation_macro_f1": 0.8532751930285263,
+  "analysis_directory": "results\\bilstm_attn\\analysis\\20260927T171701242213Z_seed42_epoch3_8a61417e",
+  "summary": "results\\bilstm_attn\\sweep\\completed_summary.md",
+  "cross_model_analysis": "missing_other_members_predictions",
+  "finished_utc": "2026-09-27T17:40:25.077776+00:00"
+}
