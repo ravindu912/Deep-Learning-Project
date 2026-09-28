@@ -92,6 +92,8 @@ def main():
     parser.add_argument("--data_dir", type=str, default="data", help="Directory with split CSVs")
     parser.add_argument("--epochs", type=int, default=15, help="Maximum epochs")
     parser.add_argument("--patience", type=int, default=3, help="Early stopping patience")
+    parser.add_argument("--test", action="store_true",
+                        help="FINAL RUN ONLY: evaluate on the held-out test split")
     args = parser.parse_args()
 
     set_seed(args.seed)
@@ -202,11 +204,25 @@ def main():
     if best_weights is not None:
         model.load_state_dict(best_weights)
 
-    # 6. Evaluation on Validation Set
+    # 6. Final evaluation.
+    # The test split is used only with --test, for the single final run;
+    # every tuning run is scored on validation.
+    if args.test:
+        eval_data, split_name = test_data, 'test'
+        X_eval = encode(eval_data.text, vocab, max_len=cfg['max_len'])
+        eval_loader = DataLoader(
+            ComplaintDataset(torch.tensor(X_eval, dtype=torch.long),
+                             torch.tensor(eval_data.y, dtype=torch.long)),
+            batch_size=cfg['batch_size'],
+            shuffle=False
+        )
+    else:
+        eval_data, split_name, eval_loader = val_data, 'val', val_loader
+
     model.eval()
     val_preds, val_probas = [], []
     with torch.no_grad():
-        for x_b, _ in val_loader:
+        for x_b, _ in eval_loader:
             x_b = x_b.to(device)
             logits = model(x_b)
             probas = F.softmax(logits, dim=1).cpu().numpy()
@@ -217,7 +233,7 @@ def main():
     y_pred = np.concatenate(val_preds, axis=0)
     y_proba = np.concatenate(val_probas, axis=0)
 
-    res = evaluate_model(val_data.y, y_pred, y_proba, classes, split='val')
+    res = evaluate_model(eval_data.y, y_pred, y_proba, classes, split=split_name)
     res['params'] = count_params(model)
     res['train_time_s'] = train_time_s
 
@@ -228,11 +244,12 @@ def main():
             x_t = torch.tensor(x_enc, dtype=torch.long).to(device)
             return F.softmax(model(x_t), dim=1).cpu().numpy()
 
-    res['inference_ms_per_1k'] = time_inference(predict_fn, val_data.text[:1000])
+    res['inference_ms_per_1k'] = time_inference(predict_fn, eval_data.text[:1000])
 
     os.makedirs('results', exist_ok=True)
-    save_results('textcnn', res, history=history, config=cfg, seed=args.seed)
-    print(f"[Saved] Output written to results/textcnn_seed{args.seed}.json")
+    name = 'textcnn_test' if args.test else 'textcnn'
+    save_results(name, res, history=history, config=cfg, seed=args.seed)
+    print(f"[Saved] Output written to results/{name}_seed{args.seed}.json")
 
 
 if __name__ == "__main__":
